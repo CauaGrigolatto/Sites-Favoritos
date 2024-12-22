@@ -28,6 +28,17 @@
         />
 
     <ImageView
+        android:id="@+id/img_delete"
+        app:tint="@color/red"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_trash"
+        app:layout_constraintEnd_toStartOf="@id/img_star"
+        app:layout_constraintTop_toTopOf="@id/text_view_apelido"
+        />
+
+    <ImageView
         android:id="@+id/img_star"
         android:layout_width="48dp"
         android:layout_height="48dp"

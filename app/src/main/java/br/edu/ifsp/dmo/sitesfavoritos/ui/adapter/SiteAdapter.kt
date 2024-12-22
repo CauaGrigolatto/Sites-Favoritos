@@ -36,6 +36,7 @@ class SiteAdapter(val context: Context, val dataset: List<Site>, val listener: S
         }
 
         holder.binding.layoutItem.setOnClickListener{listener.clickSiteItem(position)}
+        holder.binding.imgDelete.setOnClickListener{listener.clickDeleteSiteItem(position)}
         holder.binding.imgStar.setOnClickListener{listener.clickFavoriteSiteItem(position)}
     }
 
