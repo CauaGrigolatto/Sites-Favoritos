@@ -1,11 +1,13 @@
-package br.edu.ifsp.dmo.sitesfavoritos.ui
+package br.edu.ifsp.dmo.sitesfavoritos.ui.main
 
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.edu.ifsp.dmo.sitesfavoritos.R
@@ -17,15 +19,24 @@ import br.edu.ifsp.dmo.sitesfavoritos.ui.listener.SiteItemClickListener
 
 class MainActivity : AppCompatActivity(), SiteItemClickListener {
     private lateinit var binding: ActivityMainBinding
-    private var datasource = ArrayList<Site>()
+    private lateinit var adapter: SiteAdapter
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
         setContentView(binding.root)
 
         configListeners()
         configRecyclerView()
+        configObserver()
+    }
+
+    private fun configObserver() {
+        viewModel.sites.observe(this, Observer { sites ->
+            adapter.updateSites(sites)
+        })
     }
 
     private fun configListeners() {
@@ -42,13 +53,12 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
             .setPositiveButton(
                 R.string.salvar,
                 DialogInterface.OnClickListener{ dialog, which ->
-                    datasource.add(
+                    viewModel.addSite(
                         Site(
                             bindingDialog.editTextApelido.text.toString(),
                             bindingDialog.editTextUrl.text.toString()
                         )
                     )
-                    notifyAdapter()
                     dialog.dismiss()
                 }
             )
@@ -63,13 +73,8 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
         dialog.show()
     }
 
-    private fun notifyAdapter() {
-        val adapter = binding.recyclerViewSites.adapter
-        adapter?.notifyDataSetChanged()
-    }
-
     private fun configRecyclerView() {
-        val adapter = SiteAdapter(this, datasource, this)
+        adapter = SiteAdapter(this, mutableListOf(), this)
         val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this)
 
         binding.recyclerViewSites.adapter = adapter
@@ -77,16 +82,14 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
     }
 
     override fun clickSiteItem(position: Int) {
-        val site = datasource[position]
+        val site = viewModel.sites.value?.get(position)
         val mIntent = Intent(Intent.ACTION_VIEW)
-        mIntent.setData((Uri.parse("http://" + site.url)))
+        mIntent.setData((Uri.parse("http://" + site?.url)))
         startActivity(mIntent)
     }
 
     override fun clickFavoriteSiteItem(position: Int) {
-        val site = datasource[position]
-        site.favorito = !site.favorito
-        notifyAdapter()
+        viewModel.toggleFavorite(position)
     }
 
     override fun clickDeleteSiteItem(position: Int) {
@@ -98,8 +101,7 @@ class MainActivity : AppCompatActivity(), SiteItemClickListener {
             .setPositiveButton(
                 R.string.deletar,
                 DialogInterface.OnClickListener{ dialog, which ->
-                    datasource.removeAt(position)
-                    notifyAdapter()
+                    viewModel.removeSite(position)
                     dialog.dismiss()
                 }
             )

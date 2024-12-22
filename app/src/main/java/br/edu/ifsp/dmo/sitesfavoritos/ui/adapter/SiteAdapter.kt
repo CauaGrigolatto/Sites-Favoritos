@@ -4,14 +4,18 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.view.menu.MenuView.ItemView
 import androidx.recyclerview.widget.RecyclerView
 import br.edu.ifsp.dmo.sitesfavoritos.R
 import br.edu.ifsp.dmo.sitesfavoritos.databinding.ItemViewBinding
 import br.edu.ifsp.dmo.sitesfavoritos.model.entity.Site
 import br.edu.ifsp.dmo.sitesfavoritos.ui.listener.SiteItemClickListener
 
-class SiteAdapter(val context: Context, val dataset: List<Site>, val listener: SiteItemClickListener) : RecyclerView.Adapter<SiteAdapter.ViewHolder>() {
+class SiteAdapter(val context: Context, var dataset: List<Site>, val listener: SiteItemClickListener) : RecyclerView.Adapter<SiteAdapter.ViewHolder>() {
+
+    fun updateSites(newSites: List<Site>) {
+        dataset = newSites
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
